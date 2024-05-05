@@ -2,7 +2,7 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -14,7 +14,7 @@ struct Node<T> {
     next: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Node<T> {
+impl<T: Ord> Node<T> {
     fn new(t: T) -> Node<T> {
         Node {
             val: t,
@@ -29,13 +29,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T:Ord+Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T:Ord+Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -71,14 +71,38 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+		let mut list_c = LinkedList::<T>::new();
+        let mut a_index = list_a.start;
+        let mut b_index = list_b.start;
+        unsafe{
+        while  a_index.is_some() && b_index.is_some()
+        {    
+            unsafe { if (*a_index.unwrap().as_ptr()).val <= (*b_index.unwrap().as_ptr()).val 
+            {
+                list_c.add(unsafe { (*a_index.unwrap().as_ptr()).val.clone() });
+                a_index = unsafe { (*a_index.unwrap().as_ptr()).next };
+            }
+            else
+            {
+                list_c.add(unsafe { (*b_index.unwrap().as_ptr()).val.clone() });
+                b_index = unsafe { (*b_index.unwrap().as_ptr()).next };
+            }
+        }
+        } 
+        while a_index!=(*list_a.end.unwrap().as_ptr()).next{
+                list_c.add(unsafe { (*a_index.unwrap().as_ptr()).val.clone() });
+                a_index = unsafe { (*a_index.unwrap().as_ptr()).next };
+            }
+            
+        while b_index!=(*list_b.end.unwrap().as_ptr()).next{
+                    list_c.add(unsafe { (*b_index.unwrap().as_ptr()).val.clone() });
+                    b_index = unsafe { (*b_index.unwrap().as_ptr()).next };
+                }    
+        }
+            list_c
         }
 	}
-}
+
 
 impl<T> Display for LinkedList<T>
 where
